@@ -143,6 +143,32 @@ Because many sites choose not to configure an outgoing email server (SMTP), OED 
 - Sites can verify downloads without needing new infrastructure
 - Fits GitHub’s security model
 
+## Checksum and Verification Process
+
+This section describes a lightweight integrity-check process that works with GitHub Releases and does not require new infrastructure.
+
+### What maintainers do when publishing a release
+1. Build the release artifacts as usual (zip/tar, etc.).
+2. Generate SHA-256 checksums for each release artifact.
+   - Example:
+     - `sha256sum <artifact-file> > <artifact-file>.sha256`
+3. Upload the `.sha256` checksum files to the same GitHub Release as the artifacts.
+4. (Optional) Include checksum values in the version metadata file (for convenience), but the Release asset checksum files are the source of truth.
+
+### What site admins do when upgrading
+1. Download the release artifact and its matching `.sha256` file from GitHub Releases.
+2. Verify integrity locally before installing:
+   - Example:
+     - `sha256sum -c <artifact-file>.sha256`
+3. If verification fails, do not install the artifact (treat it as corrupted or tampered).
+
+### Testing / validation for OED maintainers
+- For each release, verify checksums before publishing:
+  - Run `sha256sum -c` against the generated `.sha256` files locally.
+- After publishing, re-download one artifact + checksum from GitHub and verify again.
+- Confirm the documentation links clearly point admins to the correct Release assets.
+  
+
 ### Long-Term Improvement: Easier Upgrades
 
 To reduce manual steps, OED can explore a future script:
